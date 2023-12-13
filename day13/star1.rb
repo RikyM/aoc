@@ -28,27 +28,23 @@ class Pattern
     return fold_vertical * 100
   end
 
-  def fold_vertical
-    axis = 1
+  private
 
-    until axis > @max_y
+  def fold_vertical
+    (1..@max_y).each do |axis|
       min_y = @max_y - (2 * (@max_y - axis)) - 1
       folded = @rocks.map{|x|x.reflect_v(axis)}.filter{|r| not r.nil? and r.y >= min_y}
 
       if folded.group_by{|r| [r.y, r.x]}.map{|k,v| v.size}.all? {|s| s == 2}
         return axis
       end
-
-      axis += 1
     end
 
     return 0
   end
 
   def fold_horizontal
-    axis = 1
-
-    until axis > @max_x
+    (1..@max_x).each do |axis|
       min_x = @max_x - (2 * (@max_x - axis)) - 1
       folded = @rocks.map{|x|x.reflect_h(axis)}.filter{|r| not r.nil? and r.x >= min_x}
 
@@ -126,7 +122,7 @@ p = Pattern.new
 patterns = [p]
 
 
-(input.lines + ['']).each.with_index do |row|
+input.each_line.with_index do |row|
   row.chomp!
 
   case row
@@ -142,6 +138,4 @@ patterns = [p]
   end
 end
 
-values = patterns.map{|p| p.score}
-
-puts values.sum
+puts patterns.map{|p| p.score}.sum
