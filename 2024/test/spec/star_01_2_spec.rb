@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../helper/star'
+require_relative '../helper/test_star'
 
 day = 1
 star_n = 2

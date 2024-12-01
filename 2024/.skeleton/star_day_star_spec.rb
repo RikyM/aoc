@@ -2,8 +2,8 @@
 
 require_relative '../helper/test_star'
 
-day = 1
-star_n = 1
+day = 'DAY_PLACEHOLDER'
+star_n = 'STAR_PLACEHOLDER'
 
 star = TestStar.new day, star_n
 

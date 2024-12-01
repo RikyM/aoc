@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
-class Star
+require_relative '../super_star'
+
+class Star < SuperStar
+
+  def initialize
+    super(1, 1)
+  end
+
   def run(input)
     left = []
     right = []
