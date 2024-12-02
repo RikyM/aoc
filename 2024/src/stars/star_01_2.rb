@@ -27,9 +27,7 @@ class Star < SuperStar
   def similarity(left, right)
     right_counts = count(right)
 
-    left.reduce(0) do |similarity, n|
-      similarity + (n * right_counts[n])
-    end
+    left.map{|n| n * right_counts[n]}.sum
   end
 
   def count(numbers)

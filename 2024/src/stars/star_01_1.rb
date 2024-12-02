@@ -19,6 +19,9 @@ class Star < SuperStar
       right << r.to_i
     end
 
-    left.sort.zip(right.sort).reduce(0){|t, e| t + (e[1] - e[0]).abs}
+    left.sort
+        .zip(right.sort)
+        .map{|e| (e[1] - e[0]).abs}
+        .sum
   end
 end

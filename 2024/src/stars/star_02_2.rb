@@ -8,31 +8,31 @@ class Report
   end
 
   def is_safe?
-    is_safe_arr?(@levels) or (is_safe_without_one?)
-  end
-
-  def is_safe_without_one?
-    (0...@levels.size).each do |i|
-      new_levels = []
-
-      @levels.each.with_index do |level, j|
-        new_levels << level if j != i
-      end
-      return true if is_safe_arr?(new_levels)
+    (-1...@levels.size).each do |excluded|
+      return true if is_safe_skipping? @levels, excluded
     end
-
     false
   end
 
   private
 
-  def is_safe_arr? levels
-    differences = levels[1..-1].map.with_index do |level, index|
-      level - levels[index]
+  def is_safe_skipping? levels, skipping
+    prev = nil
+
+    (1...@levels.size).each do |i|
+      next if i == skipping or (i == 1 and skipping == 0)
+
+      prev_index = i-1
+      prev_index = i-2 if prev_index == skipping
+
+      diff = levels[i] - levels[prev_index]
+
+      return false unless diff.abs in (1..3)
+      return false if prev != nil and (prev * diff) < 0
+      prev = diff
     end
 
-    differences.all? {|d| 1 <= d.abs and d.abs <= 3} and
-      (differences.all? {|d| d.positive?} or differences.all? {|d| d.negative?})
+    true
   end
 end
 
