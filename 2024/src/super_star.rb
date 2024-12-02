@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'input/input_file'
+require_relative 'input/input_string'
 
 class SuperStar
   def initialize(day, star)

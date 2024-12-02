@@ -11,9 +11,12 @@ class TestStar
   end
 
   def run_example
-    require
     file_path = File.expand_path("../input/example_#{@day_s}_#{@star}.txt", File.dirname(__FILE__))
     new_star.run_with_file file_path
+  end
+
+  def run input
+    new_star.run_with_string input
   end
 
   private
