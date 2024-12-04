@@ -3,7 +3,6 @@
 require_relative '../super_star'
 
 class Star < SuperStar
-
   def initialize
     super('DAY_PLACEHOLDER', 'STAR_PLACEHOLDER')
   end
