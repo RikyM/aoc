@@ -61,6 +61,26 @@ class Coordinate
     new_coord.move! direction, steps
     new_coord
   end
+
+  def inspect
+    "[#{@row}, #{@column}]"
+  end
+
+  def to_s
+    inspect
+  end
+
+  def ==(other)
+    @row == other.row && @column == other.column
+  end
+
+  def eql?(other)
+    self == other
+  end
+
+  def hash
+    [row, column].hash
+  end
 end
 
 class Grid
@@ -83,7 +103,7 @@ class Grid
     return nil if row < 0 || column < 0
     begin
       @grid[row][column]
-    rescue => e
+    rescue
       nil
     end
   end
