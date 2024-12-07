@@ -5,7 +5,7 @@ require_relative '../lib/grid'
 
 class Star < SuperStar
   def initialize
-    super(4, 1)
+    super(4, 2)
 
     @central_letter = ?A
     @corner_letters = [?M, ?S]

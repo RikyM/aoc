@@ -8,7 +8,7 @@ require 'set'
 
 class Star < SuperStar
   def initialize
-    super(6, 1)
+    super(6, 2)
   end
 
   def run(input)

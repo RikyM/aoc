@@ -5,7 +5,7 @@ require_relative '../super_star'
 
 class Star < SuperStar
   def initialize
-    super(5, 1)
+    super(5, 2)
 
     @rules = Hash.new{|h, k| h[k] = []}
   end

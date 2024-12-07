@@ -3,7 +3,7 @@ require_relative '../super_star'
 class Star < SuperStar
 
   def initialize
-    super(3, 1)
+    super(3, 2)
   end
 
   def run(input)

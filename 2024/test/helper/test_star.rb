@@ -23,7 +23,7 @@ class TestStar
 
   def require
     unless @already_required
-      require_relative "../../src/stars/star_#{@day_s}_#{@star}"
+      load File.expand_path("../../../src/stars/star_#{@day_s}_#{@star}.rb", __FILE__)
       @already_required = true
     end
   end
