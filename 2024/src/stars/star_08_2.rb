@@ -28,21 +28,11 @@ class Star < SuperStar
     antinodes = Set.new
     antennas.each_pair do |name, coords|
       coords.combination(2).each do |pair|
-        an = Star.antinode_of(*pair)
-        node = an[:base]
-        delta = an[:delta]
-
-        if node.column >= grid_size and delta.column < 0
-          node += delta until node.column < grid_size
-        elsif node.column < 0 and delta.column > 0
-          node += delta until node.column >= 0
-        end
-
-        while node.in_range?(0...grid_size)
-          antinodes << node
-          node = node + delta
-        end
-
+        Star.antinode_of(*pair)
+          .lazy
+          .take_while{|n| n.row <= row}
+          .filter{|n| n.in_range?(0...grid_size)}
+          .each{|n| antinodes << n}
       end
     end
 
@@ -60,14 +50,20 @@ class Star < SuperStar
     if delta_y == 0
       base_row = up.row
       base_column = delta_x > 0 ? up.column % delta_x : down.column % (-delta_x)
+      delta_x = delta_x.abs
     else
       base_row = up.row % delta_y
       base_column = up.column - delta_x * (up.row / delta_y)
     end
 
-    {
-      base: Coordinate.new(base_row, base_column),
-      delta: Coordinate.new(delta_y, delta_x)
-    }
+    Enumerator.new do |yielder|
+      node = Coordinate.new(base_row, base_column)
+      delta = Coordinate.new(delta_y, delta_x)
+
+      loop do
+        yielder.yield node
+        node += delta
+      end
+    end
   end
 end

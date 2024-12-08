@@ -33,48 +33,51 @@ describe "Day #{day} - Star #{star_n}" do
 
   describe 'antinodes' do
     it 'calculates the antinode of two antennas \\' do
-      expected_antinode = {
-        base: Coordinate.new(1, 1),
-        delta: Coordinate.new(2, 3)
-      }
+      expected_antinodes = [
+        Coordinate.new(1, 1),
+        Coordinate.new(3, 4),
+        Coordinate.new(5, 7),
+      ]
 
       antennas = [Coordinate.new(3, 4), Coordinate.new(5,7)]
-      expect(Star.antinode_of *antennas).to eq(expected_antinode)
+      expect(Star.antinode_of(*antennas).take(3)).to eq(expected_antinodes)
 
       antennas = [Coordinate.new(5, 7), Coordinate.new(7,10)]
-      expect(Star.antinode_of *antennas).to eq(expected_antinode)
+      expect(Star.antinode_of(*antennas).take(3)).to eq(expected_antinodes)
     end
 
     it 'calculates the antinode of two antennas /' do
-      expected_antinode = {
-        base: Coordinate.new(1, 6),
-        delta: Coordinate.new(2, -1)
-      }
+      expected_antinodes = [
+        Coordinate.new(1, 6),
+        Coordinate.new(3, 5),
+        Coordinate.new(5, 4),
+      ]
 
       antennas = [Coordinate.new(3, 5), Coordinate.new(5,4)]
-      expect(Star.antinode_of *antennas).to eq(expected_antinode)
+      expect(Star.antinode_of(*antennas).take(3)).to eq(expected_antinodes)
 
       antennas = [Coordinate.new(5, 4), Coordinate.new(7,3)]
-      expect(Star.antinode_of *antennas).to eq(expected_antinode)
+      expect(Star.antinode_of(*antennas).take(3)).to eq(expected_antinodes)
     end
 
     it 'calculates the antinode of two antennas -' do
       antennas = [Coordinate.new(3, 5), Coordinate.new(3,3)]
-      expected_antinode = {
-        base: Coordinate.new(3, 1),
-        delta: Coordinate.new(0, -2)
-      }
-      expect(Star.antinode_of *antennas).to eq(expected_antinode)
+      expected_antinodes = [
+        Coordinate.new(3, 1),
+        Coordinate.new(3, 3),
+        Coordinate.new(3, 5),
+      ]
+      expect(Star.antinode_of(*antennas).take(3)).to eq(expected_antinodes)
     end
 
     it 'calculates the antinode of two antennas |' do
       antennas = [Coordinate.new(3, 5), Coordinate.new(5,5)]
-      expected_antinode = {
-        base: Coordinate.new(1, 5),
-        delta: Coordinate.new(2, 0)
-      }
-      actual_antinode = Star.antinode_of *antennas
-      expect(actual_antinode).to eq(expected_antinode)
+      expected_antinodes = [
+        Coordinate.new(1, 5),
+        Coordinate.new(3, 5),
+        Coordinate.new(5, 5),
+      ]
+      expect(Star.antinode_of(*antennas).take(3)).to eq(expected_antinodes)
     end
   end
 end
