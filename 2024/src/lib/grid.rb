@@ -56,6 +56,10 @@ class Coordinate
     end
   end
 
+  def + other
+    Coordinate.new(@row + other.row, @column + other.column)
+  end
+
   def move direction, steps=1
     new_coord = Coordinate.new(@row, @column)
     new_coord.move! direction, steps
@@ -80,6 +84,10 @@ class Coordinate
 
   def hash
     [row, column].hash
+  end
+
+  def in_range? range
+    range.include? @row and range.include? @column
   end
 end
 
