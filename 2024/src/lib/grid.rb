@@ -75,6 +75,12 @@ class Coordinate
     ]
   end
 
+  def oriented_neighs
+    res = {}
+    [:up, :right, :left, :down].each{|dir| res[dir] = move dir}
+    res
+  end
+
   def inspect
     "[#{@row}, #{@column}]"
   end
