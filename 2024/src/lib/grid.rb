@@ -106,6 +106,77 @@ class Coordinate
   end
 end
 
+
+class Edge
+  attr_reader :orientation, :in_side
+
+  def initialize ul_corner, orientation, in_side
+    @ul_corner = ul_corner
+    @orientation = orientation
+    @in_side = in_side
+  end
+
+  def row
+    @ul_corner.row
+  end
+
+  def column
+    @ul_corner.column
+  end
+
+  def self.of_coord_going coord, direction
+    case direction
+    when :up
+      return new coord, :horizontal, direction
+    when :right
+      return new coord.move(:right), :vertical, direction
+    when :down
+      return new coord.move(:down), :horizontal, direction
+    when :left
+      return new coord, :vertical, direction
+    else
+      raise "Unknown direction #{direction}"
+    end
+  end
+
+  def neighs
+    if @orientation == :vertical
+      [
+        Edge.new(@ul_corner.move(:up), :vertical, @in_side),
+        Edge.new(@ul_corner.move(:down), :vertical, @in_side)]
+    else
+      [
+        Edge.new(@ul_corner.move(:left), :horizontal, @in_side),
+        Edge.new(@ul_corner.move(:right), :horizontal, @in_side)]
+    end
+  end
+
+  def movable_directions
+    if @orientation == :vertical
+      [:up, :down]
+    else
+      [:left, :right]
+    end
+  end
+
+  def move direction
+    Edge.new(@ul_corner.move(direction), orientation, @in_side)
+  end
+
+  def ==(other)
+    @ul_corner == other and @orientation == other.orientation and @in_side == other.in_side
+  end
+
+  def eql?(other)
+    self == other
+  end
+
+  def hash
+    [@ul_corner, @orientation, @in_side].hash
+  end
+end
+
+
 class Grid
   def initialize
     @grid = []

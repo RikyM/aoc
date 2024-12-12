@@ -5,74 +5,6 @@ require 'set'
 require_relative '../super_star'
 require_relative '../lib/grid'
 
-class Edge
-  attr_reader :orientation
-
-  def initialize ul_corner, orientation
-    @ul_corner = ul_corner
-    @orientation = orientation
-  end
-
-  def row
-    @ul_corner.row
-  end
-
-  def column
-    @ul_corner.column
-  end
-
-  def self.of_coord_going coord, direction
-    case direction
-    when :up
-      return new coord, :horizontal
-    when :right
-      return new coord.move(:right), :vertical
-    when :down
-      return new coord.move(:down), :horizontal
-    when :left
-      return new coord, :vertical
-    else
-      raise "Unknown direction #{direction}"
-    end
-  end
-
-  def neighs
-    if @orientation == :vertical
-      [
-        Edge.new(@ul_corner.move(:up), :vertical),
-        Edge.new(@ul_corner.move(:down), :vertical)]
-    else
-      [
-        Edge.new(@ul_corner.move(:left), :horizontal),
-        Edge.new(@ul_corner.move(:right), :horizontal)]
-    end
-  end
-
-  def movable_directions
-    if @orientation == :vertical
-      [:up, :down]
-    else
-      [:left, :right]
-    end
-  end
-
-  def move direction
-    Edge.new(@ul_corner.move(direction), orientation)
-  end
-
-  def ==(other)
-    @ul_corner == other and @orientation == other.orientation
-  end
-
-  def eql?(other)
-    self == other
-  end
-
-  def hash
-    [@ul_corner, @orientation].hash
-  end
-end
-
 class Star < SuperStar
   def initialize
     super(12, 2)
@@ -88,14 +20,13 @@ class Star < SuperStar
         plants[plant] << Coordinate.new(row, column)
       end
       row += 1
-      #garden << line
     end
 
     res = 0
     plants.each_pair do |plant, coords|
       until coords.empty?
         coords.first
-        score = score_group_of(coords.first, coords, plant)
+        score = score_group_of(coords.first, coords)
         res += score
       end
     end
@@ -103,10 +34,11 @@ class Star < SuperStar
     res
   end
 
-  def score_group_of(coord, coords, plant)
+  private
+
+  def score_group_of(coord, coords)
     to_see = [coord]
     seen = Set.new
-
     edges = Set.new
 
     until to_see.empty?
@@ -125,10 +57,8 @@ class Star < SuperStar
       seen << c
     end
 
-    sides = count_sides(edges)
-
     coords.subtract(seen)
-    sides * seen.size
+    count_sides(edges) * seen.size
   end
 
   def count_sides(edges)
@@ -153,5 +83,3 @@ class Star < SuperStar
     res
   end
 end
-
-puts Star.new.help_the_elves

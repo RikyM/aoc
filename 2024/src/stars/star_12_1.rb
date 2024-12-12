@@ -20,7 +20,6 @@ class Star < SuperStar
         plants[plant] << Coordinate.new(row, column)
       end
       row += 1
-      #garden << line
     end
 
     res = 0
@@ -34,6 +33,8 @@ class Star < SuperStar
 
     res
   end
+
+  private
 
   def score_group_of(coord, coords)
     to_see = [coord]
@@ -59,9 +60,5 @@ class Star < SuperStar
 
     coords.subtract(seen)
     edges * seen.size
-
-
   end
 end
-
-#puts Star.new.help_the_elves

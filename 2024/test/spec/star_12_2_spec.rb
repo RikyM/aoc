@@ -32,4 +32,15 @@ OOOOO
 
     expect(star.run input).to eq(436)
   end
+
+  it 'discriminates in/out' do
+    input = 'AAAAAA
+AAABBA
+AAABBA
+ABBAAA
+ABBAAA
+AAAAAA'
+
+    expect(star.run input).to eq(368)
+  end
 end

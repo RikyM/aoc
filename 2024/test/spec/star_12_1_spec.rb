@@ -30,6 +30,6 @@ OXOXO
 OOOOO
 '
 
-    expect(star.run input).to eq((12 * 7) + 4 + 4)
+    expect(star.run input).to eq(772)
   end
 end
