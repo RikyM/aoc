@@ -2,10 +2,12 @@
 
 class Coordinate
   attr_reader :row, :column
+  attr_writer :wrap_around
 
   def initialize row, column
     @row = row
     @column = column
+    @wrap_around = nil
   end
 
   def self.all_directions
@@ -54,6 +56,11 @@ class Coordinate
     else
       raise "Wrong direction #{direction}"
     end
+
+    unless @wrap_around.nil?
+      @row %= @wrap_around.row
+      @column %= @wrap_around.column
+    end
   end
 
   def move direction, steps=1
@@ -62,8 +69,16 @@ class Coordinate
     new_coord
   end
 
-  def + other
-    Coordinate.new(@row + other.row, @column + other.column)
+  def + other, times=1
+    new_row = @row + other.row * times
+    new_column = @column + other.column * times
+
+    unless @wrap_around.nil?
+      new_row %=  @wrap_around.row
+      new_column %=  @wrap_around.column
+    end
+
+    Coordinate.new(new_row, new_column)
   end
 
   def neighs

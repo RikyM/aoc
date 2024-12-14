@@ -19,14 +19,14 @@ class TestStar
     new_star.run_with_string input
   end
 
-  private
-
   def require
     unless @already_required
       load File.expand_path("../../../src/stars/star_#{@day_s}_#{@star}.rb", __FILE__)
       @already_required = true
     end
   end
+
+  private
 
   def new_star
     require
