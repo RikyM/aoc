@@ -27,21 +27,20 @@ class Robot
 end
 
 class Star < SuperStar
-  def initialize
-    super(14, 1)
+  attr_writer :generate_image, :print_result
+
+  def initialize n_rows=103, n_cols=101
+    super(14, 2)
     @generate_image = true
-    @print_result = false
+    @print_result = true
+
+    @n_rows = n_rows
+    @n_cols = n_cols
   end
 
   def run(input)
-    if @generate_image
-      image_dir = Dir.mktmpdir('aoc_robots-')
-      puts "Generating images in #{image_dir}"
-      at_exit { FileUtils.remove_entry(image_dir) }
-    end
-
     robots = []
-    @wrap_limits = Coordinate.new(103, 101)
+    @wrap_limits = Coordinate.new(@n_rows, @n_cols)
     input.each_line do |line|
       pos, vel = line.split.map{|e| Coordinate.new( *e.split(?=)
                                                       .last
@@ -54,27 +53,38 @@ class Star < SuperStar
 
     time_to_loop = robots.map{|r| r.time_to_loop @wrap_limits}.reduce{|a,b|a.lcm(b)}
 
+    time_with_max_neighs = 0
+    max_neighs = 0
     time_to_loop.times do |i|
-      new_pos = robots.map{|r| r.move(i)}
+      new_pos = Set.new robots.map{|r| r.move(i)}
+      robots_with_neighbour = new_pos.count{|p| p.neighs.any?{|n| new_pos.include? n}}
 
-      if @generate_image
-        png = ChunkyPNG::Image.new(101, 103, ChunkyPNG::Color::WHITE)
-        new_pos.each do |pos|
-          png[pos.column, pos.row] = ChunkyPNG::Color::BLACK
-        end
-        png.save("#{image_dir}/#{i}.png")
+      if robots_with_neighbour > max_neighs
+        time_with_max_neighs = i
+        max_neighs = robots_with_neighbour
       end
+    end
 
-      if @print_result
-        puts " -- time #{i}"
-        @wrap_limits.row.times do |row|
-          @wrap_limits.column.times do |col|
-            nr = new_pos.count(Coordinate.new(row, col))
-            png[col,row] = nr == 0 ? ChunkyPNG::Color::WHITE : ChunkyPNG::Color::BLACK
-            print(nr == 0 ? ?..colorize(:light_black) : nr.to_s.colorize(:green))
-          end
-          puts
+    if @generate_image
+      image_dir = Dir.mktmpdir('aoc_robots-')
+      puts "Generating image in #{image_dir}"
+      at_exit { FileUtils.remove_entry(image_dir) }
+
+      png = ChunkyPNG::Image.new(101, 103, ChunkyPNG::Color::WHITE)
+      robots.map{|r| r.move(time_with_max_neighs)}
+            .each {|pos| png[pos.column, pos.row] = ChunkyPNG::Color::BLACK}
+      png.save("#{image_dir}/#{time_with_max_neighs}.png")
+    end
+
+    if @print_result
+      rs = robots.map{|r| r.move(time_with_max_neighs)}
+      @wrap_limits.row.times do |row|
+        @wrap_limits.column.times do |col|
+          nr = rs.count(Coordinate.new(row, col))
+          png[col,row] = nr == 0 ? ChunkyPNG::Color::WHITE : ChunkyPNG::Color::BLACK
+          print(nr == 0 ? ?..colorize(:light_black) : nr.to_s.colorize(:green))
         end
+        puts
       end
     end
 
@@ -83,7 +93,7 @@ class Star < SuperStar
       print " #{image_dir} will be removed"
       gets
     end
+
+    time_with_max_neighs
   end
 end
-
-Star.new.help_the_elves
