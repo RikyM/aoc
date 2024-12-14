@@ -47,5 +47,3 @@ class Star < SuperStar
     ].reduce(:*)
   end
 end
-
-puts Star.new.help_the_elves

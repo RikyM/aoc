@@ -91,7 +91,7 @@ class Star < SuperStar
     if @generate_image
       puts 'Execution ended. Press enter to continue'
       print " #{image_dir} will be removed"
-      gets
+      STDIN.gets
     end
 
     time_with_max_neighs
