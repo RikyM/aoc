@@ -11,7 +11,7 @@ describe "Day #{day} - Star #{star_n}" do
   it 'Runs the example' do
     star.require
 
-    file_path = File.expand_path("../input/example_14_1.txt", File.dirname(__FILE__))
+    file_path = File.expand_path("../input/example_14.txt", File.dirname(__FILE__))
     output = Star.new(7, 11).run InputFile.new(file_path)
     expect(output).to eq(12)
   end

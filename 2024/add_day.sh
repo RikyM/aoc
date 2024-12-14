@@ -24,7 +24,7 @@ function add_star() {
   sed -e "s/'DAY_PLACEHOLDER'/$day/" -e "s/'STAR_PLACEHOLDER'/$star/" $spec_src > $spec_target
 
   touch "$input_path/input_${day_s}.txt"
-  touch "$example_path/example_${day_s}_${star}.txt"
+  touch "$example_path/example_${day_s}.txt"
 }
 
 add_star 1
