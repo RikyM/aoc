@@ -7,31 +7,43 @@ require_relative '../super_star'
 require_relative '../lib/grid'
 
 class Star < SuperStar
+  attr_accessor :print_map
+
   def initialize
     super(15, 1)
+
+    @print_map = false
+    @dirs = {
+      '^' => :up,
+      '>' => :right,
+      '<' => :left,
+      'v' => :down,
+    }
   end
 
   def run(input)
-    moves = ''
+    moves = []
 
     @walls = Set.new
-    @goods = Set.new
+    @boxes = Set.new
     @robot = nil
 
     row = 0
     input.each_line do |line|
       case line
       when /^[>v<^]+$/
-        moves += line
+        moves += line.chars.map{|c| @dirs[c]}
       else
         line.each_char.with_index do |char, column|
           case char
           when '#'
             @walls << Coordinate.new(row, column)
           when 'O'
-            @goods << Coordinate.new(row, column)
+            @boxes << Coordinate.new(row, column)
           when '@'
             @robot = Coordinate.new(row, column)
+          else
+            # Empty space
           end
         end
 
@@ -39,20 +51,16 @@ class Star < SuperStar
       end
     end
 
-    #print_map(row)
+    print_map(row-1) if @print_map
 
-    moves.each_char.with_index do |move, i|
-      direction = translate_direction(move)
+    moves.each {|direction| try_to_move_robot direction}
 
-      try_to_move_robot direction
-
-      puts ''
-      puts "Move #{i}(#{move})"
-
-      #print_map(row)
+    if @print_map
+      puts
+      print_map(row-1)
     end
 
-    @goods.map{|g| g.row * 100 + g.column}.sum
+    @boxes.map{|g| g.row * 100 + g.column}.sum
   end
 
   private
@@ -61,39 +69,21 @@ class Star < SuperStar
     new_pos = @robot.move(direction)
 
     return false if @walls.include?(new_pos)
-    if @goods.include?(new_pos)
-      return false unless try_to_move_good(new_pos, direction)
-    end
+    return false if @boxes.include?(new_pos) and not try_to_move_box(new_pos, direction)
 
     @robot = new_pos
     true
   end
 
-  def try_to_move_good pos, direction
+  def try_to_move_box pos, direction
     new_pos = pos.move(direction)
 
     return false if @walls.include?(new_pos)
-    if @goods.include?(new_pos)
-      return false unless try_to_move_good(new_pos, direction)
-    end
+    return false if @boxes.include?(new_pos) and not try_to_move_box(new_pos, direction)
 
-    @goods.delete pos
-    @goods << new_pos
-
+    @boxes.delete pos
+    @boxes << new_pos
     true
-  end
-
-  def translate_direction move
-    case move
-    when '^'
-      :up
-    when '>'
-      :right
-    when '<'
-      :left
-    when 'v'
-      :down
-    end
   end
 
   def print_map(size)
@@ -103,7 +93,7 @@ class Star < SuperStar
 
         if @robot == c
           print '@'.colorize(:yellow)
-        elsif @goods.include?(c)
+        elsif @boxes.include?(c)
           print 'O'.colorize(:light_blue)
         elsif @walls.include?(c)
           print '#'.colorize(:red)
