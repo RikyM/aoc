@@ -12,7 +12,7 @@ class TestStar
 
   def run_example
     file_path = File.expand_path("../input/example_#{@day_s}_#{@star}.txt", File.dirname(__FILE__))
-    unless File.exists? file_path
+    unless File.exist? file_path
       file_path = File.expand_path("../input/example_#{@day_s}.txt", File.dirname(__FILE__))
     end
 
