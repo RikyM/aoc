@@ -23,6 +23,10 @@ class Coordinate
     ]
   end
 
+  def self.four_directions
+    [:up, :right, :down, :left]
+  end
+
   # Resetting the values is faster than creating a new object
   #   Just make sure you don't need to use the old values again ;)
   def set! row, column
