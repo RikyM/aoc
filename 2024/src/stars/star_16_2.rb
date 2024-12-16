@@ -32,119 +32,65 @@ class Star < SuperStar
       row += 1
     end
 
-    #corners = Set.new
-    #(1..walls.map(&:row).max).each do |row|
-    #  (1..walls.map(&:column).max).each do |column|
-    #    c = Coordinate.new(row, column)
-    #    neighs_dirs = c.oriented_neighs
-    #                   .filter{|dir, coord| not walls.include?(coord)}
-    #                   .map{|dir, _| dir}
-    #    if neighs_dirs.size != 2 or (not opposite_dir?(*neighs_dirs))
-    #      corners << c
-    #    end
-    #  end
-    #end
+    corners = Set.new
+    (1..walls.map(&:row).max).each do |row|
+      (1..walls.map(&:column).max).each do |column|
+        c = Coordinate.new(row, column)
+        neighs_dirs = c.oriented_neighs
+                       .filter{|dir, coord| not walls.include?(coord)}
+                       .map{|dir, _| dir}
+        if neighs_dirs.size != 2 or (not opposite_dir?(*neighs_dirs))
+          corners << c
+        end
+      end
+    end
 
 
-    #(walls.map(&:row).max+1).times do |row|
-    #  (walls.map(&:column).max.+1).times do |column|
-    #    c = Coordinate.new(row, column)
-    #    if walls.include?(Coordinate.new(row, column))
-    #      print '#'.colorize(:red)
-    #    elsif corners.include?(Coordinate.new(row, column))
-    #      print '.'.colorize(:light_blue)
-    #    else
-    #      print '.'.colorize(:light_black)
-    #    end
-    #  end
-    #  puts
-    #end
+    # TODO This is slow as fuck. Probably scanning the space row by row is better
+    adj = Hash.new {|h,k| h[k] = {}}
+    corners.each do |c|
+      Coordinate.four_directions.each do |dir|
+        nearest_wall, distance_wall = *(Star.nearest_in_to walls, c, dir)
+        nearest_corner, distance_corner = *(Star.nearest_in_to corners, c, dir)
 
-    #adj = Hash.new {|h,k| h[k] = []}
+        if (not nearest_corner.nil?) and distance_corner < distance_wall
+          adj[c][dir] = {coord: nearest_corner, distance: distance_corner}
+        end
+      end
+    end
 
-    #corners.each do |c|
-    #  Coordinate.four_directions.each do |dir|
-    #    nearest_wall, distance_wall = *(nearest_in_to walls, c, dir)
-    #    nearest_corner, distance_corner = *(nearest_in_to corners, c, dir)
-
-    #    if (not nearest_corner.nil?) and distance_corner < distance_wall
-    #      adj[c] << {corner: nearest_corner, distance: distance_corner, direction: dir}
-    #    end
-    #  end
-    #end
-
-    #    #puts('breakpoint')
-#    costs = {[:right, reindeer] => 0,
-#             [:upreindeer, reindeer] => 1000,
-#             [:left, reindeer] => 1000,
-#             [:down, reindeer] => 1000
-#    }
-#    reverse_costs = Hash.new {|h,k| h[k] = Hash.new{|hi,ki| hi[ki] = Set.new}}
-#    to_visit = [{reindeer: reindeer, direction: :right}]
-#
-#    until to_visit.empty?
-#      visiting = to_visit.pop
-#      r = visiting[:reindeer]
-#      d = visiting[:direction]
-#      next if visiting[:reindeer] == end_tile
-#
-#      visiting[:reindeer].oriented_neighs
-#                         .filter{|d, n| not walls.include? n}
-#      #.each_pair do |d, n|
-#                         .each do |dn|
-#        d, n = *dn
-#        rc = rotation_cost_from_to(visiting[:direction], d)
-#        cost = 1 + rc
-#        current_cost = costs[[visiting[:direction], visiting[:reindeer]]]
-#        total_cost = cost + current_cost
-#        #if (not costs.include?(n)) or (costs.include? n and costs[n] >= total_cost)
-#        #  costs[n] = cost + costs[visiting[:reindeer]]
-#        #  to_visit << {reindeer: n, direction: d}
-#        #  reverse_costs[n][total_cost] << visiting[:reindeer]
-#        #end
-#        if (not costs.include?(dn)) or (costs.include? dn and costs[dn] >= total_cost)
-#          costs[dn] = cost + current_cost #costs[visiting[:reindeer]]
-#          to_visit << {reindeer: n, direction: d}
-#          reverse_costs[n][total_cost+rc] << visiting[:reindeer]
-#        end
-#      end
-#    end
-
-    #puts('breakpoint')
     costs = {[:right, reindeer] => 0}
     reverse_costs = Hash.new {|h,k| h[k] = Hash.new{|hi,ki| hi[ki] = Set.new}}
     to_visit = [{reindeer: reindeer, direction: :right}]
 
-    ends = 0
+    min_cost = 10000000000000000000000000000000000000000000000000
     until to_visit.empty?
       visiting = to_visit.pop
       r = visiting[:reindeer]
       d = visiting[:direction]
       k = [d, r]
-      if visiting[:reindeer] == end_tile
-        ends += 1
-        puts "End #{ends}"
-      end
 
-      step = visiting[:reindeer].move(d)
-      unless walls.include? step
-        current_cost = costs[[visiting[:direction], visiting[:reindeer]]]
-        total_cost = current_cost + 1
-        dn = [d, step]
-        if (not costs.include?(dn)) or (costs.include? dn and costs[dn] >= total_cost)
+      current_cost = costs[k]
+      next if current_cost > min_cost
+
+      step = adj[r][d]
+      unless step.nil?
+        total_cost = current_cost + step[:distance]
+        dn = [d, step[:coord]]
+        if ((not costs.include?(dn)) or (costs.include? dn and costs[dn] >= total_cost)) and total_cost <= min_cost
           costs[dn] = total_cost
-          to_visit << {reindeer: step, direction: d}
+          to_visit << {reindeer: step[:coord], direction: d}
           reverse_costs[dn][total_cost] << k
+          min_cost = total_cost if step[:coord] == end_tile
         end
       end
 
       Coordinate.four_directions.each do |dir|
         next if dir == d
-        current_cost = costs[[visiting[:direction], visiting[:reindeer]]]
         total_cost = current_cost + 1000
 
         dn = [dir, r]
-        if (not costs.include?(dn)) or (costs.include? dn and costs[dn] >= total_cost)
+        if ((not costs.include?(dn)) or (costs.include? dn and costs[dn] >= total_cost)) and total_cost <= min_cost
           costs[dn] = total_cost
           to_visit << {reindeer: r, direction: dir}
           reverse_costs[dn][total_cost] << k
@@ -152,62 +98,39 @@ class Star < SuperStar
       end
     end
 
-
-    puts 'paths'
-
     on_path = Set.new
     to_visit = reverse_costs.keys.filter{|x| x[1] == end_tile}
     to_visit = [to_visit.min_by{|t| reverse_costs[t].keys.min}]
     visited = Set.new
-    paths = 0
     until to_visit.empty?
       coord = to_visit.pop
+      coord_coord = coord[1]
       on_path << coord[1]
-      if coord[1] == reindeer
-        paths += 1
-        puts "path #{paths}"
-      end
 
-      rc = reverse_costs[coord]
       min_cost = reverse_costs[coord].keys.min
-      foo = reverse_costs[coord][min_cost]
-      foo.each{|e| to_visit << e}
-      #to_visit += reverse_costs[coord][min_cost].filter{|e| not visited.include?(e)}
+      reverse_costs[coord][min_cost].each do |e|
+        ec = e[1]
+        ed = e[0]
+        until ec == coord_coord
+          on_path << ec
+          ec = ec.move(ed)
+        end
+        to_visit << e
+      end
       visited << coord
     end
 
-    #(walls.map(&:row).max+1).times do |row|
-    #  (walls.map(&:column).max.+1).times do |column|
-    #    c = Coordinate.new(row, column)
-    #    if walls.include?(Coordinate.new(row, column))
-    #      print '#'.colorize(:red)
-    #    elsif on_path.include?(Coordinate.new(row, column))
-    #      print '.'.colorize(:light_blue)
-    #    else
-    #      print '.'.colorize(:light_black)
-    #    end
-    #  end
-    #  puts
-    #end
-
-    #costs[end_tile]
     on_path.size
   end
 
-  def rotation_cost_from_to(from, to)
-    return 0 if from == to
-    1000
-  end
-
   def opposite_dir?(a, b)
-    res = ((a == :up and b == :down) or
+    ((a == :up and b == :down) or
       (b == :down and a == :up) or
       (a == :right and b == :left) or
       (a == :left and b == :right))
-    res
   end
 
-  def nearest_in_to(set, coord, dir)
+  def self.nearest_in_to(set, coord, dir)
     if dir == :up
       nearest = set.filter{|c| c.column == coord.column and c.row < coord.row}.max_by(&:row)
       return nearest.nil? ? [nil, -1] : [nearest, coord.row - nearest.row]
@@ -217,11 +140,11 @@ class Star < SuperStar
       return nearest.nil? ? [nil, -1] : [nearest, nearest.row - coord.row]
     end
     if dir == :left
-      nearest = set.filter{|c| c.row == coord.row and c.column < coord.column}.max_by(&:row)
+      nearest = set.filter{|c| c.row == coord.row and c.column < coord.column}.max_by(&:column)
       return nearest.nil? ? [nil, -1] : [nearest, coord.column - nearest.column]
     end
     if dir == :right
-      nearest = set.filter{|c| c.row == coord.row and c.column > coord.column}.max_by(&:row)
+      nearest = set.filter{|c| c.row == coord.row and c.column > coord.column}.min_by(&:column)
       return nearest.nil? ? [nil, -1] : [nearest, nearest.column - coord.column]
     end
   end
