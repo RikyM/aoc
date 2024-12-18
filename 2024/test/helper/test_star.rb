@@ -10,17 +10,17 @@ class TestStar
     @already_required = false
   end
 
-  def run_example
+  def run_example star_args=[]
     file_path = File.expand_path("../input/example_#{@day_s}_#{@star}.txt", File.dirname(__FILE__))
     unless File.exist? file_path
       file_path = File.expand_path("../input/example_#{@day_s}.txt", File.dirname(__FILE__))
     end
 
-    new_star.run_with_file file_path
+    new_star(star_args).run_with_file file_path
   end
 
-  def run input
-    new_star.run_with_string input
+  def run input, star_args=[]
+    new_star(star_args).run_with_string input
   end
 
   def require
@@ -32,8 +32,8 @@ class TestStar
 
   private
 
-  def new_star
+  def new_star star_args
     require
-    Star.new
+    Star.new *star_args
   end
 end
